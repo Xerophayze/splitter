@@ -1,0 +1,1 @@
+python splitter.py %1
