@@ -2,7 +2,7 @@ import os
 import sys
 import hashlib
 import subprocess
-from tkinter import Tk, Label, Button, Entry, filedialog, StringVar, OptionMenu, messagebox, Listbox, Scrollbar
+from tkinter import Tk, Label, Button, Entry, filedialog, StringVar, IntVar, messagebox, Listbox, Scrollbar, OptionMenu
 from PIL import Image
 
 def install_package(package_name):
@@ -23,7 +23,7 @@ def get_image_hash(image_path):
         img_hash = hashlib.md5(f.read()).hexdigest()
     return img_hash
 
-def split_and_resize_image(image_path, output_size, output_folder):
+def split_and_resize_image(image_path, images_across, images_high, output_size, output_folder):
     # Get the base name of the file without extension
     base_name = os.path.splitext(os.path.basename(image_path))[0]
     if not output_folder:
@@ -54,15 +54,20 @@ def split_and_resize_image(image_path, output_size, output_folder):
 
     # Open the image file
     with Image.open(image_path) as img:
-        # Split the image into 15 smaller images
+        img_width, img_height = img.size
+        small_width = img_width // images_across
+        small_height = img_height // images_high
+        longest_edge = max(small_width, small_height)
+
+        # Split the image into the specified number of smaller images
         count = 1
-        for row in range(3):
-            for col in range(5):
+        for row in range(images_high):
+            for col in range(images_across):
                 # Calculate the coordinates of the current small image
-                left = col * img.width // 5
-                upper = row * img.height // 3
-                right = left + img.width // 5
-                lower = upper + img.height // 3
+                left = col * small_width
+                upper = row * small_height
+                right = left + small_width
+                lower = upper + small_height
 
                 # Crop the image
                 small_img = img.crop((left, upper, right, lower))
@@ -85,6 +90,8 @@ def start_processing():
     processing_label.config(text="")
     file_paths = image_paths.get().split("\n")
     output_folder = folder_name_var.get()
+    images_across = images_across_var.get()
+    images_high = images_high_var.get()
     if file_paths:
         output_size = int(size_var.get())
 
@@ -97,7 +104,7 @@ def start_processing():
                     return
 
         for file_path in file_paths:
-            split_and_resize_image(file_path, output_size, output_folder)
+            split_and_resize_image(file_path, images_across, images_high, output_size, output_folder)
         
         processing_label.config(text="Processing completed!")
 
@@ -108,6 +115,8 @@ root.title("Image Splitter and Resizer")
 image_paths = StringVar()
 size_var = StringVar(value="512")
 folder_name_var = StringVar()
+images_across_var = IntVar(value=4)
+images_high_var = IntVar(value=2)
 
 Label(root, text="Select image files:").pack(pady=5)
 Button(root, text="Browse", command=browse_images).pack(pady=5)
@@ -122,6 +131,12 @@ scrollbar.config(command=listbox.yview)
 
 Label(root, text="Select output image size:").pack(pady=5)
 OptionMenu(root, size_var, "512", "768", "1024").pack(pady=5)
+
+Label(root, text="Enter number of images across:").pack(pady=5)
+Entry(root, textvariable=images_across_var).pack(pady=5)
+
+Label(root, text="Enter number of images high:").pack(pady=5)
+Entry(root, textvariable=images_high_var).pack(pady=5)
 
 Label(root, text="Enter destination folder name (optional):").pack(pady=5)
 Entry(root, textvariable=folder_name_var).pack(pady=5)
