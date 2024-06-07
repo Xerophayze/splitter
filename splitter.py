@@ -3,6 +3,7 @@ import sys
 import hashlib
 import subprocess
 from tkinter import Tk, Label, Button, Entry, filedialog, StringVar, IntVar, messagebox, Listbox, Scrollbar, OptionMenu
+from tkinterdnd2 import TkinterDnD, DND_FILES
 from PIL import Image
 
 def install_package(package_name):
@@ -12,7 +13,7 @@ def install_package(package_name):
         subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
 
 def check_and_install_dependencies():
-    required_packages = ["Pillow"]
+    required_packages = ["Pillow", "tkinterdnd2"]
     for package in required_packages:
         install_package(package)
 
@@ -23,13 +24,21 @@ def get_image_hash(image_path):
         img_hash = hashlib.md5(f.read()).hexdigest()
     return img_hash
 
-def split_and_resize_image(image_path, images_across, images_high, output_size, output_folder):
-    # Get the base name of the file without extension
-    base_name = os.path.splitext(os.path.basename(image_path))[0]
-    if not output_folder:
-        output_folder = os.path.join(os.getcwd(), base_name)
+def resize_image_keep_aspect_ratio(image, target_size):
+    original_width, original_height = image.size
+    if original_width > original_height:
+        new_width = target_size
+        new_height = int(target_size * original_height / original_width)
     else:
-        output_folder = os.path.join(os.getcwd(), output_folder)
+        new_height = target_size
+        new_width = int(target_size * original_width / original_height)
+    return image.resize((new_width, new_height))
+
+def split_and_resize_image(image_path, images_across, images_high, output_size, custom_folder):
+    # Get the base name and directory of the file without extension
+    base_name = os.path.splitext(os.path.basename(image_path))[0]
+    source_directory = os.path.dirname(image_path)
+    output_folder = os.path.join(source_directory, custom_folder or base_name)
     
     # Get the hash of the selected image
     selected_image_hash = get_image_hash(image_path)
@@ -57,7 +66,6 @@ def split_and_resize_image(image_path, images_across, images_high, output_size, 
         img_width, img_height = img.size
         small_width = img_width // images_across
         small_height = img_height // images_high
-        longest_edge = max(small_width, small_height)
 
         # Split the image into the specified number of smaller images
         count = 1
@@ -71,45 +79,47 @@ def split_and_resize_image(image_path, images_across, images_high, output_size, 
 
                 # Crop the image
                 small_img = img.crop((left, upper, right, lower))
-                # Resize the image to the specified output size
-                small_img = small_img.resize((output_size, output_size))
+                # Resize the image to the specified output size while keeping aspect ratio
+                small_img = resize_image_keep_aspect_ratio(small_img, output_size)
 
                 # Save the small image as a jpg file
                 small_img.save(os.path.join(output_folder, f"{base_name}_part_{count}.jpg"), "JPEG")
                 count += 1
 
 def browse_images():
-    file_paths = filedialog.askopenfilenames(filetypes=[("Image files", "*.jpg *.jpeg *.png *.bmp")])
+    file_paths = filedialog.askopenfilenames(filetypes=[("Image files", "*.jpg *.jpeg *.png *.bmp *.webp")])
     if file_paths:
         image_paths.set("\n".join(file_paths))
         listbox.delete(0, 'end')
         for file_path in file_paths:
-            listbox.insert('end', os.path.basename(file_path))
+            listbox.insert('end', file_path)
+
+def drop(event):
+    files = root.tk.splitlist(event.data)
+    current_files = listbox.get(0, 'end')
+    for file in files:
+        if os.path.splitext(file)[1].lower() in [".jpg", ".jpeg", ".png", ".bmp", ".webp"]:
+            if file not in current_files:
+                listbox.insert('end', file)
+                current_files += (file,)
+    image_paths.set("\n".join(listbox.get(0, 'end')))
 
 def start_processing():
     processing_label.config(text="")
     file_paths = image_paths.get().split("\n")
-    output_folder = folder_name_var.get()
     images_across = images_across_var.get()
     images_high = images_high_var.get()
+    custom_folder = folder_name_var.get()
     if file_paths:
         output_size = int(size_var.get())
 
-        # Check if the output folder exists and prompt only once
-        if output_folder:
-            if os.path.exists(output_folder):
-                answer = messagebox.askyesno("Folder Exists", 
-                                             f"The folder '{os.path.basename(output_folder)}' already exists. Do you want to continue? If any existing images in the folder were created using these images, they will be overwritten. Otherwise, new images will be added to the existing file set.")
-                if not answer:
-                    return
-
         for file_path in file_paths:
-            split_and_resize_image(file_path, images_across, images_high, output_size, output_folder)
+            split_and_resize_image(file_path, images_across, images_high, output_size, custom_folder)
         
         processing_label.config(text="Processing completed!")
 
 # Set up the GUI
-root = Tk()
+root = TkinterDnD.Tk()
 root.title("Image Splitter and Resizer")
 
 image_paths = StringVar()
@@ -125,9 +135,13 @@ Button(root, text="Browse", command=browse_images).pack(pady=5)
 scrollbar = Scrollbar(root)
 scrollbar.pack(side='right', fill='y')
 
-listbox = Listbox(root, yscrollcommand=scrollbar.set, width=50, height=10)
+listbox = Listbox(root, yscrollcommand=scrollbar.set, width=100, height=10)
 listbox.pack(pady=5)
 scrollbar.config(command=listbox.yview)
+
+# Enable drag and drop
+listbox.drop_target_register(DND_FILES)
+listbox.dnd_bind('<<Drop>>', drop)
 
 Label(root, text="Select output image size:").pack(pady=5)
 OptionMenu(root, size_var, "512", "768", "1024").pack(pady=5)
