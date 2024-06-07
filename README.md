@@ -24,10 +24,12 @@ I created this tool to provide an easy way to split images, particularly for tho
     ```
 
 3. **Using the GUI**:
-    - **Select Image Files**: Click the "Browse" button to open a file dialog and select multiple image files you wish to process. The selected file names will be displayed in a list within the GUI.
-    - **Select Output Image Size**: Choose the desired output image size (512x512, 768x768, or 1024x1024) from the dropdown menu.
-    - **Enter Destination Folder Name (Optional)**: Optionally, enter a name for the destination folder. If left blank, the folder will be named after each image file.
-    - **Start Processing**: Click the "Start Processing" button to split and resize the images. The processed images will be saved in the specified output folder.
+- Click the "Browse" button to select multiple image files (jpg, jpeg, png, bmp).
+- The selected file names will be displayed in a list format within the GUI.
+- Choose the desired output image size (512x512, 768x768, or 1024x1024) from the dropdown menu.
+- Enter the number of images across and high.
+- Optionally, enter a name for the destination folder. If left blank, the folder will be named after each image file.
+- Click the "Start Processing" button to split and resize the images.
 
 ## Script Details
 
