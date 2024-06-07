@@ -2,7 +2,7 @@ import os
 import sys
 import hashlib
 import subprocess
-from tkinter import Tk, Label, Button, Entry, filedialog, StringVar, IntVar, messagebox, Listbox, Scrollbar, OptionMenu
+from tkinter import Tk, Label, Button, Entry, filedialog, StringVar, IntVar, messagebox, Listbox, Scrollbar, OptionMenu, Frame
 from tkinterdnd2 import TkinterDnD, DND_FILES
 from PIL import Image
 
@@ -104,6 +104,10 @@ def drop(event):
                 current_files += (file,)
     image_paths.set("\n".join(listbox.get(0, 'end')))
 
+def clear_listbox():
+    listbox.delete(0, 'end')
+    image_paths.set("")
+
 def start_processing():
     processing_label.config(text="")
     file_paths = image_paths.get().split("\n")
@@ -125,8 +129,8 @@ root.title("Image Splitter and Resizer")
 image_paths = StringVar()
 size_var = StringVar(value="512")
 folder_name_var = StringVar()
-images_across_var = IntVar(value=4)
-images_high_var = IntVar(value=2)
+images_across_var = IntVar(value=5)
+images_high_var = IntVar(value=3)
 
 Label(root, text="Select image files:").pack(pady=5)
 Button(root, text="Browse", command=browse_images).pack(pady=5)
@@ -143,17 +147,24 @@ scrollbar.config(command=listbox.yview)
 listbox.drop_target_register(DND_FILES)
 listbox.dnd_bind('<<Drop>>', drop)
 
-Label(root, text="Select output image size:").pack(pady=5)
-OptionMenu(root, size_var, "512", "768", "1024").pack(pady=5)
+# Clear button
+Button(root, text="Clear", command=clear_listbox).pack(pady=5)
 
-Label(root, text="Enter number of images across:").pack(pady=5)
-Entry(root, textvariable=images_across_var).pack(pady=5)
+# Options in grid pattern
+options_frame = Frame(root)
+options_frame.pack(pady=10)
 
-Label(root, text="Enter number of images high:").pack(pady=5)
-Entry(root, textvariable=images_high_var).pack(pady=5)
+Label(options_frame, text="Select output image size:").grid(row=0, column=0, padx=5, pady=5, sticky="e")
+OptionMenu(options_frame, size_var, "512", "768", "1024").grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
-Label(root, text="Enter destination folder name (optional):").pack(pady=5)
-Entry(root, textvariable=folder_name_var).pack(pady=5)
+Label(options_frame, text="Enter number of images across:").grid(row=1, column=0, padx=5, pady=5, sticky="e")
+Entry(options_frame, textvariable=images_across_var).grid(row=1, column=1, padx=5, pady=5, sticky="w")
+
+Label(options_frame, text="Enter number of images high:").grid(row=2, column=0, padx=5, pady=5, sticky="e")
+Entry(options_frame, textvariable=images_high_var).grid(row=2, column=1, padx=5, pady=5, sticky="w")
+
+Label(options_frame, text="Enter destination folder name (optional):").grid(row=3, column=0, padx=5, pady=5, sticky="e")
+Entry(options_frame, textvariable=folder_name_var).grid(row=3, column=1, padx=5, pady=5, sticky="w")
 
 Button(root, text="Start Processing", command=start_processing).pack(pady=20)
 
