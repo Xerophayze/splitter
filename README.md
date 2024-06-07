@@ -1,5 +1,5 @@
 # Image Splitter and Resizer
-<img width="462" alt="python_G9DJ9dbs6F" src="https://github.com/Xerophayze/splitter/assets/113407496/ba74acf8-d911-4d28-983c-902851bf4346">
+<img width="463" alt="python_irHbV8Pp75" src="https://github.com/Xerophayze/splitter/assets/113407496/6cec060c-4e33-42c2-a487-8ddb8e2b8569">
 
 I created this tool to provide an easy way to split images, particularly for those preparing large datasets of images for AI training. This script is especially useful for splitting images generated from a grid of AI images.
 
