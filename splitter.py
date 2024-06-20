@@ -13,9 +13,15 @@ def install_package(package_name):
         subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
 
 def check_and_install_dependencies():
-    required_packages = ["Pillow", "tkinterdnd2"]
-    for package in required_packages:
-        install_package(package)
+    required_packages = {
+        "Pillow": "PIL",
+        "tkinterdnd2": "tkinterdnd2"
+    }
+    for package, module in required_packages.items():
+        try:
+            __import__(module)
+        except ImportError:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 check_and_install_dependencies()
 
@@ -35,16 +41,12 @@ def resize_image_keep_aspect_ratio(image, target_size):
     return image.resize((new_width, new_height))
 
 def split_and_resize_image(image_path, images_across, images_high, output_size, custom_folder):
-    # Get the base name and directory of the file without extension
     base_name = os.path.splitext(os.path.basename(image_path))[0]
     source_directory = os.path.dirname(image_path)
     output_folder = os.path.join(source_directory, custom_folder or base_name)
-    
-    # Get the hash of the selected image
     selected_image_hash = get_image_hash(image_path)
     
     if os.path.exists(output_folder):
-        # Check for existing files and their hashes
         existing_files = [f for f in os.listdir(output_folder) if f.endswith('.jpg')]
         for file in existing_files:
             file_path = os.path.join(output_folder, file)
@@ -52,38 +54,29 @@ def split_and_resize_image(image_path, images_across, images_high, output_size, 
                 with open(file_path, 'rb') as f:
                     file_hash = hashlib.md5(f.read()).hexdigest()
                 if file_hash == selected_image_hash:
-                    # Overwrite the existing file if hashes match
                     continue
             except Exception as e:
-                messagebox.showerror("Error", f"Error checking file {file}: {str(e)}")
+                messagebox.showerror("Error", f"Error checking file %s: %s" % (file, str(e)))
         
-    # Ensure the output folder exists
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    # Open the image file
     with Image.open(image_path) as img:
         img_width, img_height = img.size
         small_width = img_width // images_across
         small_height = img_height // images_high
 
-        # Split the image into the specified number of smaller images
         count = 1
         for row in range(images_high):
             for col in range(images_across):
-                # Calculate the coordinates of the current small image
                 left = col * small_width
                 upper = row * small_height
                 right = left + small_width
                 lower = upper + small_height
 
-                # Crop the image
                 small_img = img.crop((left, upper, right, lower))
-                # Resize the image to the specified output size while keeping aspect ratio
                 small_img = resize_image_keep_aspect_ratio(small_img, output_size)
-
-                # Save the small image as a jpg file
-                small_img.save(os.path.join(output_folder, f"{base_name}_part_{count}.jpg"), "JPEG")
+                small_img.save(os.path.join(output_folder, "%s_part_%d.jpg" % (base_name, count)), "JPEG")
                 count += 1
 
 def browse_images():
@@ -111,64 +104,101 @@ def clear_listbox():
 def start_processing():
     processing_label.config(text="")
     file_paths = image_paths.get().split("\n")
+    
+    if not file_paths or file_paths == ['']:
+        messagebox.showwarning("Warning", "No images selected. Please select some images to process.")
+        return
+
     images_across = images_across_var.get()
     images_high = images_high_var.get()
     custom_folder = folder_name_var.get()
-    if file_paths:
+    
+    custom_size = custom_size_var.get().strip()
+    if custom_size.isdigit():
+        output_size = int(custom_size)
+    else:
         output_size = int(size_var.get())
 
-        for file_path in file_paths:
-            split_and_resize_image(file_path, images_across, images_high, output_size, custom_folder)
-        
-        processing_label.config(text="Processing completed!")
+    if images_across <= 0:
+        images_across = 1
+    if images_high <= 0:
+        images_high = 1
 
-# Set up the GUI
+    for file_path in file_paths:
+        split_and_resize_image(file_path, images_across, images_high, output_size, custom_folder)
+    
+    processing_label.config(text="Processing completed!")
+
 root = TkinterDnD.Tk()
 root.title("Image Splitter and Resizer")
 
+# Set minimum window size
+root.minsize(500, 420)
+
+root.grid_columnconfigure(0, weight=1)
+root.grid_rowconfigure(0, weight=1)
+
+main_frame = Frame(root)
+main_frame.grid(sticky='nsew')
+main_frame.grid_columnconfigure(0, weight=1)
+main_frame.grid_rowconfigure(0, weight=1)
+
 image_paths = StringVar()
 size_var = StringVar(value="512")
+custom_size_var = StringVar()
 folder_name_var = StringVar()
-images_across_var = IntVar(value=5)
-images_high_var = IntVar(value=3)
+images_across_var = IntVar(value=1)
+images_high_var = IntVar(value=1)
 
-Label(root, text="Select image files:").pack(pady=5)
-Button(root, text="Browse", command=browse_images).pack(pady=5)
+browse_frame = Frame(main_frame)
+browse_frame.grid(row=0, column=0, pady=5, sticky='w')
+browse_frame.grid_columnconfigure(0, weight=1)
+browse_frame.grid_columnconfigure(1, weight=1)
 
-# Create a listbox with a scrollbar to display selected file names
-scrollbar = Scrollbar(root)
-scrollbar.pack(side='right', fill='y')
+Label(browse_frame, text="Select image files:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
+Button(browse_frame, text="Browse", command=browse_images).grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
-listbox = Listbox(root, yscrollcommand=scrollbar.set, width=100, height=10)
-listbox.pack(pady=5)
+scrollbar = Scrollbar(main_frame)
+scrollbar.grid(row=1, column=1, sticky='ns')
+
+listbox = Listbox(main_frame, yscrollcommand=scrollbar.set, width=100, height=10)
+listbox.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
 scrollbar.config(command=listbox.yview)
 
-# Enable drag and drop
 listbox.drop_target_register(DND_FILES)
 listbox.dnd_bind('<<Drop>>', drop)
 
-# Clear button
-Button(root, text="Clear", command=clear_listbox).pack(pady=5)
+buttons_frame = Frame(main_frame)
+buttons_frame.grid(row=2, column=0, columnspan=2, pady=5, sticky='ew')
+buttons_frame.grid_columnconfigure(0, weight=1)
+buttons_frame.grid_columnconfigure(1, weight=1)
 
-# Options in grid pattern
-options_frame = Frame(root)
-options_frame.pack(pady=10)
+Button(buttons_frame, text="Clear", command=clear_listbox).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+Button(buttons_frame, text="Process", command=start_processing).grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-Label(options_frame, text="Select output image size:").grid(row=0, column=0, padx=5, pady=5, sticky="e")
-OptionMenu(options_frame, size_var, "512", "768", "1024").grid(row=0, column=1, padx=5, pady=5, sticky="w")
+options_frame = Frame(main_frame)
+options_frame.grid(row=3, column=0, columnspan=2, pady=10, sticky='ew')
+options_frame.grid_columnconfigure(0, weight=1)
+options_frame.grid_columnconfigure(1, weight=1)
+options_frame.grid_columnconfigure(2, weight=1)
+options_frame.grid_columnconfigure(3, weight=1)
 
-Label(options_frame, text="Enter number of images across:").grid(row=1, column=0, padx=5, pady=5, sticky="e")
+Label(options_frame, text="Base Size:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
+OptionMenu(options_frame, size_var, "512", "768", "1024", "2048", "4096").grid(row=0, column=1, padx=5, pady=5, sticky="w")
+
+Label(options_frame, text="Custom size:").grid(row=0, column=2, padx=5, pady=5, sticky="w")
+Entry(options_frame, textvariable=custom_size_var).grid(row=0, column=3, padx=5, pady=5, sticky="w")
+
+Label(options_frame, text="Images across:").grid(row=1, column=0, padx=5, pady=5, sticky="w")
 Entry(options_frame, textvariable=images_across_var).grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
-Label(options_frame, text="Enter number of images high:").grid(row=2, column=0, padx=5, pady=5, sticky="e")
-Entry(options_frame, textvariable=images_high_var).grid(row=2, column=1, padx=5, pady=5, sticky="w")
+Label(options_frame, text="Images high:").grid(row=1, column=2, padx=5, pady=5, sticky="w")
+Entry(options_frame, textvariable=images_high_var).grid(row=1, column=3, padx=5, pady=5, sticky="w")
 
-Label(options_frame, text="Enter destination folder name (optional):").grid(row=3, column=0, padx=5, pady=5, sticky="e")
-Entry(options_frame, textvariable=folder_name_var).grid(row=3, column=1, padx=5, pady=5, sticky="w")
+Label(options_frame, text="Output folder name (optional):").grid(row=2, column=0, padx=5, pady=5, sticky="w")
+Entry(options_frame, textvariable=folder_name_var).grid(row=2, column=1, padx=5, pady=5, sticky="w")
 
-Button(root, text="Start Processing", command=start_processing).pack(pady=20)
-
-processing_label = Label(root, text="")
-processing_label.pack(pady=5)
+processing_label = Label(main_frame, text="")
+processing_label.grid(row=4, column=0, columnspan=2, pady=5, sticky="w")
 
 root.mainloop()
