@@ -1,15 +1,14 @@
 # Image Splitter and Resizer
-
 <img width="474" alt="python_wwAG0YSEKo" src="https://github.com/Xerophayze/splitter/assets/113407496/89501363-f6eb-4456-ae36-d140471544bc">
 
 I created this tool to provide an easy way to split images, particularly for those preparing large datasets of images for AI training. This script is especially useful for splitting images generated from a grid of AI images.
 
 ## Features
 
-- Select multiple image files (jpg, jpeg, png, bmp, webp) to process.
+- Select multiple image files (jpg, jpeg, png, bmp, webp) to process, even from multiple locations.
 - Split each selected image into a customizable number of smaller images.
 - Resize the smaller images to one of several selectable sizes: 512, 768, 1024, 2048, or 4096, or a custom size.
-- Save the smaller images in a specified output folder, or create a new folder based on the original file name.
+- Save the smaller images in a specified output folder, or create a new folder based on the original file name. All done in the source image file location.
 - Always create a subfolder for each image file using the source file name, even when a custom folder is specified.
 - If width and height are both 1, create a folder with the date and time as the folder name.
 - Option to maintain the source image format (e.g., JPG, BMP, PNG).
