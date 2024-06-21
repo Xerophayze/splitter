@@ -32,6 +32,6 @@ if %errorlevel% neq 0 (
 )
 
 REM Run the Python script with the provided argument
-python splitter.py %1
+python splitter.pyw %1
 
 endlocal
