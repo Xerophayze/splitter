@@ -11,6 +11,7 @@ I created this tool to provide an easy way to split images, particularly for tho
 - Save the smaller images in a specified output folder, or create a new folder based on the original file name.
 - Always create a subfolder for each image file using the source file name, even when a custom folder is specified.
 - If width and height are both 1, create a folder with the date and time as the folder name.
+- Option to maintain the source image format (e.g., JPG, BMP, PNG).
 - Option to run the script via command line with all options configurable through arguments.
 - Use `splitter.bat` on Windows to automatically check for and install Python if not installed and open the GUI interface.
 
@@ -27,15 +28,15 @@ I created this tool to provide an easy way to split images, particularly for tho
 
 2. **Run the Script with Command-Line Arguments**:
     ```sh
-    python splitter.py <source_files> [--size SIZE] [--custom_size CUSTOM_SIZE] [--across ACROSS] [--high HIGH] [--folder FOLDER]
+    python splitter.py <source_files> [--size SIZE] [--custom_size CUSTOM_SIZE] [--across ACROSS] [--high HIGH] [--folder FOLDER] [--maintain_format]
     ```
     - `<source_files>`: Space-separated list of image files to process.
     - `--size SIZE`: Base size for resizing (default: 512).
     - `--custom_size CUSTOM_SIZE`: Custom size for resizing.
     - `--across ACROSS`: Number of images across (default: 1).
-    - `--high HIGH`: Number of images high (default: 1).  (quick note: if across and high are both 1, it will just resize the images to the spcified base size or default size.)
+    - `--high HIGH`: Number of images high (default: 1).
     - `--folder FOLDER`: Custom output folder name (optional).
-
+    - `--maintain_format`: Maintain source image format.
 
 #### Examples:
 - **Basic Usage**:
@@ -44,7 +45,7 @@ I created this tool to provide an easy way to split images, particularly for tho
     ```
 - **With Optional Arguments**:
     ```sh
-    python splitter.py image1.jpg image2.jpg --size 512 --custom_size 800 --across 2 --high 3 --folder custom_folder
+    python splitter.py image1.jpg image2.jpg --size 512 --custom_size 800 --across 2 --high 3 --folder custom_folder --maintain_format
     ```
 
 ### GUI Mode
@@ -67,6 +68,7 @@ I created this tool to provide an easy way to split images, particularly for tho
     - Enter a custom size if needed.
     - Enter the number of images across and high.
     - Optionally, enter a name for the destination folder. If left blank, the folder will be named after each image file.
+    - Check the "Maintain source image format" checkbox to keep the original format of the source images.
     - Click the "Start Processing" button to split and resize the images.
 
 ## Script Details
@@ -92,6 +94,7 @@ The script includes the following key functionalities:
     - Optionally, enter a custom size.
     - Enter the number of images across and high.
     - Optionally, enter a name for the destination folder.
+    - Check the "Maintain source image format" checkbox if desired.
     - Click "Start Processing" to split and resize the images.
 
 3. The processed images will be saved in the specified folder, with each image split into smaller images resized to the chosen dimensions.
