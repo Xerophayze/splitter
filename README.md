@@ -35,6 +35,7 @@ I created this tool to provide an easy way to split images, particularly for tho
     - `--across ACROSS`: Number of images across (default: 1).
     - `--high HIGH`: Number of images high (default: 1).
     - `--folder FOLDER`: Custom output folder name (optional).
+quick note: if across and high are both 1, it will just resize the images to the spcified base size or default size.
 
 #### Examples:
 - **Basic Usage**:
