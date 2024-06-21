@@ -1,5 +1,4 @@
 # Image Splitter and Resizer
-
 <img width="476" alt="chrome_4BqqeA4sCy" src="https://github.com/Xerophayze/splitter/assets/113407496/5b2c1590-c461-4558-8f41-71bc8ee53dd6">
 
 I created this tool to provide an easy way to split images, particularly for those preparing large datasets of images for AI training. This script is especially useful for splitting images generated from a grid of AI images.
@@ -10,6 +9,8 @@ I created this tool to provide an easy way to split images, particularly for tho
 - Split each selected image into a customizable number of smaller images.
 - Resize the smaller images to one of several selectable sizes: 512, 768, 1024, 2048, or 4096, or a custom size.
 - Save the smaller images in a specified output folder, or create a new folder based on the original file name.
+- Always create a subfolder for each image file using the source file name, even when a custom folder is specified.
+- If width and height are both 1, create a folder with the date and time as the folder name.
 - Option to run the script via command line with all options configurable through arguments.
 - Use `splitter.bat` on Windows to automatically check for and install Python if not installed and open the GUI interface.
 
