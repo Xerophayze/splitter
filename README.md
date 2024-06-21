@@ -15,6 +15,9 @@ I created this tool to provide an easy way to split images, particularly for tho
 - Option to run the script via command line with all options configurable through arguments.
 - Use `splitter.bat` on Windows to automatically check for and install Python if not installed and open the GUI interface.
 
+py file runs with console window in backgroud.
+pyw file runs without a console window in the background.  both function the same.
+
 ## Prerequisites
 
 - Python 3.x
