@@ -2,9 +2,11 @@ import sys
 import argparse
 import datetime
 import threading
+import json
 from pathlib import Path
-from tkinter import filedialog, StringVar, IntVar, BooleanVar, messagebox
+from tkinter import filedialog, StringVar, IntVar, BooleanVar, messagebox, Menu, Toplevel
 from tkinter import ttk
+from tkinter import scrolledtext
 from tkinterdnd2 import TkinterDnD, DND_FILES
 from PIL import Image, ImageTk
 
@@ -13,6 +15,57 @@ try:
     THEME_AVAILABLE = True
 except ImportError:
     THEME_AVAILABLE = False
+
+
+TOOLTIP_CONFIG_FILE = Path(__file__).with_name("tooltips.json")
+
+HELP_TEXT = (
+    "Splitter – User Help Guide\n"
+    "\n"
+    "Splitter is a tool that allows you to divide a single image into multiple smaller images "
+    "using a customizable grid layout. You can also use Splitter to resize images without "
+    "splitting them. This guide explains the layout, features, and workflow of the Splitter "
+    "application.\n"
+    "\n"
+    "✅ Getting Started\n"
+    "When you open Splitter, you are presented with a clean, modern interface designed for "
+    "straightforward image processing.\n"
+    "\n"
+    "Image List Panel (Upper Left)\n"
+    "• Displays the list of images you are working with.\n"
+    "• Add images by clicking Browse Images or by dragging and dropping them into the list.\n"
+    "• Splitter keeps the original file path for each image.\n"
+    "• When processing, a subfolder based on the original file name is created automatically.\n"
+    "\n"
+    "List Management Options\n"
+    "• Clear List – Remove all images from the list.\n"
+    "• Remove Selected – Remove only the highlighted image.\n"
+    "\n"
+    "⚙️ Global Default Settings\n"
+    "These settings apply to every image unless you override them per image.\n"
+    "• Base Size – Sets the longest edge (in pixels) while maintaining aspect ratio.\n"
+    "• Custom Base Size – Enter any pixel value to override the base size.\n"
+    "• Across & Height – Define the grid layout (columns × rows).\n"
+    "• Maintain Source Format – Keeps the original file type for the output images.\n"
+    "• Output Folder – Optional custom subfolder name for generated images.\n"
+    "\n"
+    "👁️ Preview & Per-Image Settings\n"
+    "Selecting an image shows a preview and allows you to override the global defaults with "
+    "per-image choices for size, grid, output folder, and format. Use Apply to Image to save "
+    "the overrides, or Reset to Defaults to fall back to the global configuration.\n"
+    "\n"
+    "🚀 Processing Images\n"
+    "After reviewing your list and settings, click Process All Images to generate the output.\n"
+    "Splitter will process each file according to its custom or global settings.\n"
+    "\n"
+    "📌 Summary of Key Features\n"
+    "• Drag-and-drop or browse image loading\n"
+    "• Grid-based splitting\n"
+    "• Base size control for resizing and scaling\n"
+    "• Per-image customization\n"
+    "• Automatic output folder creation\n"
+    "• Maintain source format option\n"
+)
 
 
 class ImageItem:
@@ -162,10 +215,96 @@ class ImageSplitterGUI:
         
         self.config = ImageSplitterConfig()
         self.preview_image = None
+        self.tooltips = {}
+        self.load_tooltips()
+        self.create_menubar()
         self.setup_variables()
         self.setup_ui()
         self.validate_inputs()
+
+    def load_tooltips(self):
+        """Load tooltip overrides from JSON configuration file."""
+        if TOOLTIP_CONFIG_FILE.exists():
+            try:
+                with TOOLTIP_CONFIG_FILE.open("r", encoding="utf-8") as handle:
+                    data = json.load(handle)
+                if isinstance(data, dict):
+                    self.tooltips = {str(key): str(value) for key, value in data.items()}
+                else:
+                    print("Warning: tooltips.json must contain a JSON object of key/value pairs.")
+                    self.tooltips = {}
+            except Exception as exc:
+                print(f"Warning: Failed to load tooltip configuration: {exc}")
+                self.tooltips = {}
+        else:
+            self.tooltips = {}
         
+    def create_menubar(self):
+        """Create application menu bar."""
+        menubar = Menu(self.root)
+
+        file_menu = Menu(menubar, tearoff=False)
+        file_menu.add_command(label="Reset", command=self.reset_application)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.root.quit)
+        menubar.add_cascade(label="File", menu=file_menu)
+
+        help_menu = Menu(menubar, tearoff=False)
+        help_menu.add_command(label="User Guide", command=self.show_help_manual)
+        menubar.add_cascade(label="Help", menu=help_menu)
+
+        self.root.config(menu=menubar)
+
+    def reset_application(self):
+        """Reset all settings and clear the workspace."""
+        if not messagebox.askyesno(
+            "Reset Application",
+            "Clear all images and restore the default settings?"
+        ):
+            return
+
+        # Reset global defaults
+        self.global_size_var.set("512")
+        self.global_custom_size_var.set("")
+        self.global_images_across_var.set(1)
+        self.global_images_high_var.set(1)
+        self.global_maintain_format_var.set(False)
+        self.global_folder_name_var.set("")
+
+        # Reset per-image defaults
+        self.size_var.set("512")
+        self.custom_size_var.set("")
+        self.images_across_var.set(1)
+        self.images_high_var.set(1)
+        self.maintain_format_var.set(False)
+        self.folder_name_var.set("")
+        self.use_custom_settings_var.set(False)
+        self.toggle_settings_state(False)
+
+        # Clear images and preview
+        self.clear_list()
+        self.status_var.set("Restored default settings.")
+        self.validate_inputs()
+
+    def show_help_manual(self):
+        """Display the help guide in a separate window."""
+        help_window = Toplevel(self.root)
+        help_window.title("Splitter – User Help Guide")
+        help_window.geometry("720x640")
+        help_window.transient(self.root)
+        help_window.grab_set()
+
+        text_area = scrolledtext.ScrolledText(help_window, wrap='word')
+        text_area.pack(fill='both', expand=True)
+        text_area.insert('1.0', HELP_TEXT)
+        text_area.configure(state='disabled')
+        text_area.focus_set()
+
+        def close_on_escape(event=None):
+            help_window.destroy()
+
+        help_window.bind('<Escape>', close_on_escape)
+
     def setup_variables(self):
         """Initialize tkinter variables."""
         # Global defaults
@@ -240,7 +379,7 @@ class ImageSplitterGUI:
         
         self.browse_btn = ttk.Button(btn_frame, text="📁 Browse Images", command=self.browse_images)
         self.browse_btn.pack(side='left', padx=(0, 5))
-        self.create_tooltip(self.browse_btn, "Select one or more image files to process")
+        self.create_tooltip(self.browse_btn, "browse_button", "Select one or more image files to process")
         
         ttk.Label(btn_frame, text="or drag and drop files below", foreground="gray").pack(side='left')
         
@@ -260,6 +399,7 @@ class ImageSplitterGUI:
         self.listbox.column('#0', width=300)
         self.listbox.column('settings', width=200)
         scrollbar.config(command=self.listbox.yview)
+        self.create_tooltip(self.listbox, "image_list", "Select an image to preview and adjust settings")
         
         # Bind selection event
         self.listbox.bind('<<TreeviewSelect>>', self.on_image_select)
@@ -274,9 +414,11 @@ class ImageSplitterGUI:
         
         self.clear_btn = ttk.Button(btn_frame2, text="Clear List", command=self.clear_list)
         self.clear_btn.pack(side='left', padx=(0, 5))
+        self.create_tooltip(self.clear_btn, "clear_list_button", "Remove all images from the list")
         
         self.remove_btn = ttk.Button(btn_frame2, text="Remove Selected", command=self.remove_selected)
         self.remove_btn.pack(side='left')
+        self.create_tooltip(self.remove_btn, "remove_selected_button", "Remove the highlighted image from the list")
         
         parent.grid_rowconfigure(0, weight=1)
         parent.grid_columnconfigure(0, weight=1)
@@ -291,31 +433,41 @@ class ImageSplitterGUI:
         size_frame.grid(row=0, column=0, columnspan=2, sticky='ew', pady=(0, 5))
         
         ttk.Label(size_frame, text="Base Size:").pack(side='left', padx=(0, 5))
-        size_combo = ttk.Combobox(size_frame, textvariable=self.global_size_var, 
-                                  values=["512", "768", "1024", "2048", "4096"], 
-                                  width=10, state='readonly')
-        size_combo.pack(side='left', padx=(0, 10))
-        self.create_tooltip(size_combo, "Default output size for all images")
+        global_size_combo = ttk.Combobox(size_frame, textvariable=self.global_size_var, 
+                                         values=["512", "768", "1024", "2048", "4096"], 
+                                         width=10, state='readonly')
+        global_size_combo.pack(side='left', padx=(0, 10))
+        self.create_tooltip(global_size_combo, "global_base_size", "Default output size for all images")
         
         ttk.Label(size_frame, text="Custom:").pack(side='left', padx=(0, 5))
-        ttk.Entry(size_frame, textvariable=self.global_custom_size_var, width=10).pack(side='left')
+        global_custom_entry = ttk.Entry(size_frame, textvariable=self.global_custom_size_var, width=10)
+        global_custom_entry.pack(side='left')
+        self.create_tooltip(global_custom_entry, "global_custom_size", "Override the base size with a custom pixel value")
         
         # Grid options
         grid_frame = ttk.Frame(settings_frame)
         grid_frame.grid(row=1, column=0, columnspan=2, sticky='ew', pady=(0, 5))
         
         ttk.Label(grid_frame, text="Across:").pack(side='left', padx=(0, 5))
-        ttk.Spinbox(grid_frame, from_=1, to=10, textvariable=self.global_images_across_var, width=8).pack(side='left', padx=(0, 10))
+        global_across_spin = ttk.Spinbox(grid_frame, from_=1, to=10, textvariable=self.global_images_across_var, width=8)
+        global_across_spin.pack(side='left', padx=(0, 10))
+        self.create_tooltip(global_across_spin, "global_images_across", "Number of columns to split each image into")
         
         ttk.Label(grid_frame, text="High:").pack(side='left', padx=(0, 5))
-        ttk.Spinbox(grid_frame, from_=1, to=10, textvariable=self.global_images_high_var, width=8).pack(side='left')
+        global_high_spin = ttk.Spinbox(grid_frame, from_=1, to=10, textvariable=self.global_images_high_var, width=8)
+        global_high_spin.pack(side='left')
+        self.create_tooltip(global_high_spin, "global_images_high", "Number of rows to split each image into")
         
         # Other options
-        ttk.Checkbutton(settings_frame, text="Maintain source format", 
-                       variable=self.global_maintain_format_var).grid(row=2, column=0, columnspan=2, sticky='w')
+        global_format_check = ttk.Checkbutton(settings_frame, text="Maintain source format", 
+                                             variable=self.global_maintain_format_var)
+        global_format_check.grid(row=2, column=0, columnspan=2, sticky='w')
+        self.create_tooltip(global_format_check, "global_maintain_format", "Keep original file format instead of converting to JPEG")
         
         ttk.Label(settings_frame, text="Output Folder:").grid(row=3, column=0, sticky='w', pady=(5, 0))
-        ttk.Entry(settings_frame, textvariable=self.global_folder_name_var).grid(row=3, column=1, sticky='ew', pady=(5, 0))
+        global_folder_entry = ttk.Entry(settings_frame, textvariable=self.global_folder_name_var)
+        global_folder_entry.grid(row=3, column=1, sticky='ew', pady=(5, 0))
+        self.create_tooltip(global_folder_entry, "global_output_folder", "Optional subfolder name created inside each image's directory")
         settings_frame.grid_columnconfigure(1, weight=1)
         
     def create_preview_section(self, parent):
@@ -352,7 +504,7 @@ class ImageSplitterGUI:
                                                text="Use custom settings for this image",
                                                variable=self.use_custom_settings_var)
         self.use_custom_check.grid(row=0, column=0, columnspan=2, sticky='w', pady=(0, 10))
-        self.create_tooltip(self.use_custom_check, "Override global defaults for selected image")
+        self.create_tooltip(self.use_custom_check, "per_image_enable_custom", "Override global defaults for the selected image")
         
         # Settings container
         self.settings_container = ttk.Frame(settings_frame)
@@ -362,35 +514,43 @@ class ImageSplitterGUI:
         # Size options
         row = 0
         ttk.Label(self.settings_container, text="Base Size:").grid(row=row, column=0, sticky='w', pady=2)
-        size_combo = ttk.Combobox(self.settings_container, textvariable=self.size_var, 
-                                  values=["512", "768", "1024", "2048", "4096"], 
-                                  width=15, state='readonly')
-        size_combo.grid(row=row, column=1, sticky='w', pady=2)
+        per_image_size_combo = ttk.Combobox(self.settings_container, textvariable=self.size_var, 
+                                            values=["512", "768", "1024", "2048", "4096"], 
+                                            width=15, state='readonly')
+        per_image_size_combo.grid(row=row, column=1, sticky='w', pady=2)
+        self.create_tooltip(per_image_size_combo, "per_image_base_size", "Base output size when no custom pixel size is provided")
         
         row += 1
         ttk.Label(self.settings_container, text="Custom Size:").grid(row=row, column=0, sticky='w', pady=2)
         self.custom_size_entry = ttk.Entry(self.settings_container, textvariable=self.custom_size_var, width=15)
         self.custom_size_entry.grid(row=row, column=1, sticky='w', pady=2)
+        self.create_tooltip(self.custom_size_entry, "per_image_custom_size", "Exact pixel size for the selected image (overrides base size)")
         
         row += 1
         ttk.Label(self.settings_container, text="Images Across:").grid(row=row, column=0, sticky='w', pady=2)
         self.across_entry = ttk.Spinbox(self.settings_container, from_=1, to=10, 
                                        textvariable=self.images_across_var, width=15)
         self.across_entry.grid(row=row, column=1, sticky='w', pady=2)
+        self.create_tooltip(self.across_entry, "per_image_images_across", "Number of columns to slice for this image")
         
         row += 1
         ttk.Label(self.settings_container, text="Images High:").grid(row=row, column=0, sticky='w', pady=2)
         self.high_entry = ttk.Spinbox(self.settings_container, from_=1, to=10, 
                                      textvariable=self.images_high_var, width=15)
         self.high_entry.grid(row=row, column=1, sticky='w', pady=2)
+        self.create_tooltip(self.high_entry, "per_image_images_high", "Number of rows to slice for this image")
         
         row += 1
         ttk.Label(self.settings_container, text="Output Folder:").grid(row=row, column=0, sticky='w', pady=2)
-        ttk.Entry(self.settings_container, textvariable=self.folder_name_var).grid(row=row, column=1, sticky='ew', pady=2)
+        per_image_folder_entry = ttk.Entry(self.settings_container, textvariable=self.folder_name_var)
+        per_image_folder_entry.grid(row=row, column=1, sticky='ew', pady=2)
+        self.create_tooltip(per_image_folder_entry, "per_image_output_folder", "Optional subfolder name for this image's output")
         
         row += 1
-        ttk.Checkbutton(self.settings_container, text="Maintain source format", 
-                       variable=self.maintain_format_var).grid(row=row, column=0, columnspan=2, sticky='w', pady=5)
+        per_image_format_check = ttk.Checkbutton(self.settings_container, text="Maintain source format", 
+                                                variable=self.maintain_format_var)
+        per_image_format_check.grid(row=row, column=0, columnspan=2, sticky='w', pady=5)
+        self.create_tooltip(per_image_format_check, "per_image_maintain_format", "Keep this image's original format instead of converting to JPEG")
         
         # Apply/Reset buttons
         row += 1
@@ -399,9 +559,11 @@ class ImageSplitterGUI:
         
         self.apply_btn = ttk.Button(btn_frame, text="Apply to Image", command=self.apply_settings)
         self.apply_btn.pack(side='left', padx=(0, 5))
+        self.create_tooltip(self.apply_btn, "per_image_apply", "Save the current settings to the selected image")
         
         self.reset_btn = ttk.Button(btn_frame, text="Reset to Defaults", command=self.reset_to_defaults)
         self.reset_btn.pack(side='left')
+        self.create_tooltip(self.reset_btn, "per_image_reset", "Remove custom settings and use global defaults")
         
         # Initially disable settings
         self.toggle_settings_state(False)
@@ -416,10 +578,12 @@ class ImageSplitterGUI:
         self.process_btn = ttk.Button(button_frame, text="▶ Process All Images", 
                                       command=self.start_processing, style='Accent.TButton')
         self.process_btn.grid(row=0, column=0, sticky='ew', padx=(0, 5))
+        self.create_tooltip(self.process_btn, "process_all_button", "Begin processing all images using their configured settings")
         
         self.cancel_btn = ttk.Button(button_frame, text="⏹ Cancel", 
                                      command=self.cancel_processing, state='disabled')
         self.cancel_btn.grid(row=0, column=1, sticky='ew')
+        self.create_tooltip(self.cancel_btn, "cancel_button", "Stop the current processing job")
         
     def create_status_section(self, parent):
         """Create status and progress display."""
@@ -432,17 +596,50 @@ class ImageSplitterGUI:
         
         self.status_label = ttk.Label(status_frame, textvariable=self.status_var)
         self.status_label.grid(row=1, column=0, sticky='w')
-        
-    def create_tooltip(self, widget, text):
-        """Create tooltip for widget."""
-        def on_enter(event):
-            tooltip = ttk.Label(self.root, text=text, relief='solid', borderwidth=1, 
+
+    def create_tooltip(self, widget, key, default_text=""):
+        """Create tooltip for widget using JSON overrides when available."""
+        tooltip_text = self.tooltips.get(key, default_text)
+        if not tooltip_text:
+            return
+
+        def show_tooltip(event):
+            tooltip = ttk.Label(self.root, text=tooltip_text, relief='solid', borderwidth=1, 
                                background='#ffffe0', foreground='#000000', padding=5)
-            tooltip.place(x=event.x_root - self.root.winfo_rootx() + 10, 
-                         y=event.y_root - self.root.winfo_rooty() + 10)
+            tooltip.update_idletasks()
+
+            self.root.update_idletasks()
+            root_x = self.root.winfo_rootx()
+            root_y = self.root.winfo_rooty()
+            root_width = self.root.winfo_width()
+            root_height = self.root.winfo_height()
+            tip_width = tooltip.winfo_reqwidth()
+            tip_height = tooltip.winfo_reqheight()
+
+            desired_x = event.x_root - root_x + 10
+            desired_y = event.y_root - root_y + 10
+
+            max_x = max(0, root_width - tip_width - 10)
+            max_y = max(0, root_height - tip_height - 10)
+
+            clamped_x = min(max(desired_x, 0), max_x)
+            clamped_y = min(max(desired_y, 0), max_y)
+
+            tooltip.place(x=clamped_x, y=clamped_y)
             widget.tooltip = tooltip
-            
+
+        def on_enter(event):
+            def delayed_show():
+                show_tooltip(event)
+
+            if hasattr(widget, 'tooltip_after_id'):
+                self.root.after_cancel(widget.tooltip_after_id)
+            widget.tooltip_after_id = self.root.after(1000, delayed_show)
+
         def on_leave(event):
+            if hasattr(widget, 'tooltip_after_id'):
+                self.root.after_cancel(widget.tooltip_after_id)
+                delattr(widget, 'tooltip_after_id')
             if hasattr(widget, 'tooltip'):
                 widget.tooltip.destroy()
                 delattr(widget, 'tooltip')

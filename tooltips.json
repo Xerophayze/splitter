@@ -1,0 +1,23 @@
+{
+  "browse_button": "Browse your files to add images to the project list.",
+  "image_list": "Select a file to preview it, adjust settings, or remove it from the batch.",
+  "clear_list_button": "Remove every image from the list and start fresh.",
+  "remove_selected_button": "Remove only the highlighted image from the list.",
+  "global_base_size": "Sets the longest edge (in pixels) for all outputs while keeping aspect ratio.",
+  "global_custom_size": "Enter any pixel value to override the base size for every image.",
+  "global_images_across": "Number of columns in the split grid (Across).",
+  "global_images_high": "Number of rows in the split grid (High).",
+  "global_maintain_format": "Keep the original file type (PNG stays PNG, etc.).",
+  "global_output_folder": "Optional subfolder name; leave blank to auto-create per image.",
+  "per_image_enable_custom": "Override the global defaults for this specific image.",
+  "per_image_base_size": "Base size for this image when no custom pixel value is provided.",
+  "per_image_custom_size": "Exact pixel size for this image (overrides the base size).",
+  "per_image_images_across": "Columns for this image's split grid (Across).",
+  "per_image_images_high": "Rows for this image's split grid (High).",
+  "per_image_output_folder": "Optional custom output subfolder for this image only.",
+  "per_image_maintain_format": "Keep this image's original file type when exporting.",
+  "per_image_apply": "Save these overrides and mark the image with the ⚙ icon.",
+  "per_image_reset": "Discard overrides and fall back to the global defaults.",
+  "process_all_button": "Generate output for every image using global or custom settings.",
+  "cancel_button": "Stop the current processing run immediately."
+}
