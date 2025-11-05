@@ -60,12 +60,9 @@ If Python is not installed, download it from [python.org](https://www.python.org
 | `requirements.txt` | Dependency list used by launchers |
 | `run_per_image.bat` | Windows launcher (auto setup + run) |
 | `run_per_image.sh` | Linux/macOS launcher (auto setup + run) |
-| `COMPLETED.md` | Comprehensive feature & usage guide |
-| `GETTING_STARTED.md` | Quick start walkthrough |
-| `PER_IMAGE_SETTINGS.md` | Detailed feature documentation |
-| `README.md` | This overview |
+| `README.md` | This overview and usage guide |
 
-> Removed legacy files: original/modern Python scripts, older launchers, and manual setup batch files. Everything funnels through the per-image version now.
+> Repository trimmed to the essentials: per-image application, launchers, dependency list, and this README. All legacy scripts and supplementary docs were removed.
 
 ---
 
