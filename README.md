@@ -2,262 +2,173 @@
 ![python_sSZbYKqzIa](https://github.com/user-attachments/assets/7c70a711-db13-456a-8772-0f40cc45545e)
 
 
-I created this tool to provide an easy way to split images, particularly for those preparing large datasets of images for AI training. This script is especially useful for splitting images generated from a grid of AI images.
+An advanced image splitting tool featuring per-image configuration, live previews, and a modern ttk interface. Purpose-built for preparing large image batches (e.g., AI model training sets) while giving granular control over each source image.
 
-## 🎉 NEW: Per-Image Settings Version Available!
+---
 
-**`splitter_with_per_image.py`** - Enhanced version with:
-- ✨ **Image Preview** - See thumbnails before processing
-- ⚙️ **Per-Image Settings** - Configure each image individually
-- 🎨 **Modern Dual-Panel UI** - Resizable split view
-- 📊 **Visual Indicators** - See which images have custom settings
-- 🔄 **Global Defaults** - Set base settings for all images
+## 🚀 Quick Start
 
-**Launch with:** `run_per_image.bat` or see `COMPLETED.md` for full details!
+> **All you need:** Python 3.x + one launcher. Dependencies install automatically on first run.
 
-## Versions
-
-| Version | File | Features |
-|---------|------|----------|
-| **Original** | `splitter.py` | Basic functionality, simple UI |
-| **Modern** | `splitter_modern.py` | Modern UI, threading, validation |
-| **Per-Image** ⭐ | `splitter_with_per_image.py` | All modern features + per-image settings & preview |
-
-## Features
-
-### All Versions
-- Select multiple image files (jpg, jpeg, png, bmp, webp) to process, even from multiple locations
-- Split each selected image into a customizable number of smaller images
-- Resize the smaller images to one of several selectable sizes: 512, 768, 1024, 2048, or 4096, or a custom size
-- Save the smaller images in a specified output folder, or create a new folder based on the original file name
-- Always create a subfolder for each image file using the source file name, even when a custom folder is specified
-- If width and height are both 1, create a folder with the date and time as the folder name
-- Option to maintain the source image format (e.g., JPG, BMP, PNG)
-- Option to run the script via command line with all options configurable through arguments
-- Cross-platform support with setup and run scripts for both Windows and Linux/macOS
-
-### Modern & Per-Image Versions
-- 🎨 Modern dark theme UI with sv-ttk
-- ⚡ Background threading for responsive interface
-- 📊 Real-time progress bar
-- ✅ Input validation with visual feedback
-- 💡 Tooltips on all controls
-- 🎯 Better error handling
-
-### Per-Image Version Only
-- 🖼️ **Image preview** with dimensions and file size
-- ⚙️ **Per-image custom settings** - different split/size for each image
-- 📋 **Settings summary** displayed next to each filename
-- 🔄 **Global defaults** for images without custom settings
-- ✨ **Visual indicators** (⚙ icon) show which images have custom settings
-- 🗑️ **Remove selected** image from list
-- 📐 **Dual-panel layout** with resizable sections
-
-## Project Files
-
-### Python Scripts
-- `splitter.py` - Original version (basic functionality)
-- `splitter_modern.py` - Modern UI version (threading, validation)
-- `splitter_with_per_image.py` ⭐ - **NEW!** Per-image settings with preview
-- `splitter.pyw` - Windows-specific version (runs without console window)
-
-### Launch Scripts
-- `run.bat` - Run original version (Windows)
-- `run_modern.bat` - Run modern version (Windows)
-- `run_per_image.bat` ⭐ - **Run per-image version (Windows)**
-- `run.sh` - Run original version (Linux/macOS)
-- `splitter.bat` - Original Windows launcher (checks for Python installation)
-
-### Setup & Dependencies
-- `requirements.txt` - Python package dependencies (includes sv-ttk for modern UI)
-- `install.bat` - Install all dependencies (Windows)
-- `setup.bat` - Windows setup script
-- `setup.sh` - Linux/macOS setup script
-
-### Documentation
-- `README.md` - This file
-- `COMPLETED.md` ⭐ - **Per-image version complete guide**
-- `IMPROVEMENTS.md` - All improvements documented
-- `PER_IMAGE_SETTINGS.md` - Feature documentation
-- `IMPLEMENTATION_GUIDE.md` - Technical implementation details
-- `QUICK_REFERENCE.md` - Quick lookup reference
-
-## Prerequisites
-
-- Python 3.x
-- Required packages: Pillow and tkinterdnd2 (automatically installed by setup scripts)
-
-## Installation
-
-### Windows - Quick Start (Recommended)
-
-**Just double-click to run!** No separate setup needed.
-
-```
-run_per_image.bat    ← Per-Image Settings (Recommended)
-run_modern.bat       ← Modern Version
-run.bat              ← Original Version
+### Windows
+```bat
+run_per_image.bat
 ```
 
-The launcher will automatically:
-- Check if Python is installed
-- Install missing dependencies
-- Launch the application
-
-**First time users:** If you don't have Python, install it from https://www.python.org/downloads/ (check "Add Python to PATH")
-
-### Manual Installation (Optional)
-
-If you prefer to install dependencies separately:
-```
-setup.bat    ← Checks Python + installs dependencies
-install.bat  ← Installs dependencies only
+### Linux / macOS
+```bash
+chmod +x run_per_image.sh   # first run only
+./run_per_image.sh
 ```
 
-### Linux/macOS
-1. Make the setup script executable:
-   ```sh
-   chmod +x setup.sh
-   ```
-2. Run the setup script to install dependencies:
-   ```sh
-   ./setup.sh
-   ```
-3. Run the application:
-   ```sh
-   ./run.sh
-   ```
+Both launchers automatically:
+1. Check that Python is available
+2. Install required packages (`Pillow`, `tkinterdnd2`, `sv-ttk`) if missing
+3. Start the per-image splitter UI
 
-## How to Use
+If Python is not installed, download it from [python.org](https://www.python.org/downloads/) and (on Windows) choose **“Add Python to PATH.”**
 
-### Command-Line Mode
+---
 
-1. **Install Dependencies**: First, run the appropriate setup script for your operating system:
-   - Windows: `setup.bat`
-   - Linux/macOS: `./setup.sh`
+## ✨ Key Features
 
-2. **Run the Application with Command-Line Arguments**:
-   
-   On Windows:
-   ```
-   run.bat [image1.jpg image2.jpg] [options]
-   ```
-   
-   On Linux/macOS:
-   ```sh
-   ./run.sh [image1.jpg image2.jpg] [options]
-   ```
-   
-   Available options:
-   - `<source_files>`: Space-separated list of image files to process.
-   - `--size SIZE`: Base size for resizing (default: 512).
-   - `--custom_size CUSTOM_SIZE`: Custom size for resizing.
-   - `--across ACROSS`: Number of images across (default: 1).
-   - `--high HIGH`: Number of images high (default: 1).
-   - `--folder FOLDER`: Custom output folder name (optional).
-   - `--maintain_format`: Maintain source image format.
+### Per-Image Controls
+- 🖼️ Thumbnail preview (300×300) with dimensions & file size
+- ⚙️ Custom settings per file (size, grid, folder, format)
+- 📋 Summary column showing applied overrides
+- ✳️ ⚙ icon marks images using custom settings
 
-#### Examples:
-- **Basic Usage**:
-    ```sh
-    ./run.sh image1.jpg image2.jpg
-    ```
-- **With Optional Arguments**:
-    ```sh
-    ./run.sh image1.jpg image2.jpg --size 512 --custom_size 800 --across 2 --high 3 --folder custom_folder --maintain_format
-    ```
+### Global Defaults
+- Configure size, grid, folder, and format once
+- Any image without overrides inherits global values
 
-### GUI Mode
+### Modern UI / UX
+- sv-ttk dark theme with ttk widgets
+- Responsive layout using PanedWindow (resizable split panels)
+- Drag-and-drop + multi-file browse
+- Background threading for non-blocking processing
+- Progress bar with detailed status updates
+- Validation feedback + tooltips on every control
 
-1. **Install Dependencies**: First, run the appropriate setup script for your operating system:
-   - Windows: `setup.bat`
-   - Linux/macOS: `./setup.sh`
+---
 
-2. **Launch the Application**:
-   
-   On Windows:
-   ```
-   run.bat
-   ```
-   
-   On Linux/macOS:
-   ```sh
-   ./run.sh
-   ```
-   
-   Alternatively on Windows, you can use the original `splitter.bat` file which will check for and install Python if needed.
+## 📁 Project Structure
 
-3. **Using the GUI**:
-    - Click the "Browse" button to select multiple image files (jpg, jpeg, png, bmp, webp).
-    - The selected file names will be displayed in a list format within the GUI.
-    - Choose the desired output image size from the dropdown menu.
-    - Enter a custom size if needed.
-    - Enter the number of images across and high.
-    - Optionally, enter a name for the destination folder. If left blank, the folder will be named after each image file.
-    - Check the "Maintain source image format" checkbox to keep the original format of the source images.
-    - Click the "Process" button to split and resize the images.
+| File | Purpose |
+|------|---------|
+| `splitter_with_per_image.py` | Main application code |
+| `requirements.txt` | Dependency list used by launchers |
+| `run_per_image.bat` | Windows launcher (auto setup + run) |
+| `run_per_image.sh` | Linux/macOS launcher (auto setup + run) |
+| `COMPLETED.md` | Comprehensive feature & usage guide |
+| `GETTING_STARTED.md` | Quick start walkthrough |
+| `PER_IMAGE_SETTINGS.md` | Detailed feature documentation |
+| `README.md` | This overview |
 
-## Script Details
+> Removed legacy files: original/modern Python scripts, older launchers, and manual setup batch files. Everything funnels through the per-image version now.
 
-The script includes the following key functionalities:
+---
 
-- **Dependency Check**: The script checks for the `Pillow` and `tkinterdnd2` libraries and installs them if necessary.
-- **Image Splitting and Resizing**: Each selected image is split into a customizable number of smaller images, resized to the chosen dimensions, and saved in the specified output folder.
-- **File Handling**: If the specified output folder already exists, the user is prompted to confirm whether to overwrite existing files or add new images to the folder.
+## 🛠️ Requirements
 
-## Example
+- Python 3.8+ (Windows, Linux, or macOS)
+- Automatically installed on first run:
+  - [Pillow](https://python-pillow.org/)
+  - [tkinterdnd2](https://github.com/pmgagne/tkinterdnd2)
+  - [sv-ttk](https://github.com/rdbende/Sun-Valley-ttk-theme)
 
-### GUI Mode:
+Optional but recommended:
+- GPU-accelerated image viewing for large previews (handled by Pillow)
 
-1. Install dependencies:
-   
-   On Windows:
-   ```
-   setup.bat
-   ```
-   
-   On Linux/macOS:
-   ```sh
-   ./setup.sh
-   ```
+---
 
-2. Run the application:
-   
-   On Windows:
-   ```
-   run.bat
-   ```
-   
-   On Linux/macOS:
-   ```sh
-   ./run.sh
-   ```
+## 🧭 Usage Overview
 
-3. In the GUI:
-    - Click "Browse" and select the images you want to process.
-    - Select the desired output image size from the dropdown menu.
-    - Optionally, enter a custom size.
-    - Enter the number of images across and high.
-    - Optionally, enter a name for the destination folder.
-    - Check the "Maintain source image format" checkbox if desired.
-    - Click "Process" to split and resize the images.
+### 1. Load Images
+- Drag and drop files into the left panel **or** click **📁 Browse Images**
+- Supported formats: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp`
 
-4. The processed images will be saved in the specified folder, with each image split into smaller images resized to the chosen dimensions.
+### 2. Set Global Defaults (left panel)
+- **Base Size** (512–4096) or specify a **Custom Size**
+- **Images Across** / **Images High** to define the grid
+- **Output Folder** name (optional)
+- **Maintain Format** to keep original file type
 
-## Troubleshooting
+### 3. Configure Individual Images (right panel)
+- Select an image to show its preview
+- Check **“Use custom settings for this image”**
+- Adjust size / grid / folder / format
+- Click **Apply to Image** to store overrides (⚙ icon appears)
+- Use **Reset to Defaults** to remove overrides
 
-- **Installation Issues**: If you encounter problems during setup, make sure you have an active internet connection so that the setup scripts can download and install the necessary dependencies.
-- **Python Not Found**: Ensure Python 3.x is installed and added to your system PATH. On Windows, the `splitter.bat` file will attempt to install Python if it's not found.
-- **Dependency Issues**: If the application fails to start after setup, try running the setup script again. If problems persist, you can manually install the dependencies using `pip install -r requirements.txt`.
-- **File Dialog Issues**: Make sure you are selecting valid image files (jpg, jpeg, png, bmp, webp).
-- **Permission Issues on Linux/macOS**: If you can't run the shell scripts, make sure they have executable permissions with `chmod +x setup.sh run.sh`.
+### 4. Process Images
+- Click **▶ Process All Images**
+- Each image uses its custom settings; others fall back to global defaults
+- Progress bar and status text show real-time updates
 
-## License
+---
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+## ✅ Tips for Best Results
 
-## Acknowledgments
+1. **Set global defaults first** to minimize per-image tweaks.
+2. Use previews to verify orientation and grid choices before processing.
+3. Watch for the ⚙ icon and summary column to confirm custom settings saved.
+4. After applying settings, you can switch images without losing changes.
+5. The **status bar** confirms actions (applied overrides, resets, processing).
 
-- The `Pillow` library for image processing capabilities.
-- The `tkinterdnd2` library for drag-and-drop functionality.
-- The Python Software Foundation for maintaining the Python programming language.
+---
+
+## 🧪 Testing Checklist
+
+- Add multiple images via drag-and-drop
+- Apply custom grid to one image, default to others
+- Verify preview updates when switching selection
+- Ensure ⚙ icon appears and summary text reflects overrides
+- Run processing and confirm outputs respect per-image vs global settings
+- Test failure scenarios (e.g., missing file) to confirm graceful errors
+
+---
+
+## 🧰 Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| **“Python is not installed or not in PATH.”** | Install Python 3.x and ensure it’s on PATH. On Windows, re-run installer with *Add to PATH* checked. |
+| **Dependencies fail to install.** | Check internet connection. On Windows, run launcher as Administrator; on Linux/macOS, run `python3 -m pip install -r requirements.txt` manually (prepend `sudo` if needed). |
+| **Preview missing or blank.** | Confirm the file exists, is a supported format, and hasn’t been moved. Remove and re-add if necessary. |
+| **Custom settings not saving.** | Make sure the checkbox is enabled, click **Apply to Image**, and confirm the ⚙ icon appears. |
+| **Permission errors on Linux/macOS.** | Ensure the launcher has execute permission (`chmod +x run_per_image.sh`). |
+
+---
+
+## 📜 License & Credits
+
+- Licensed under the **MIT License** (see `LICENSE`).
+- Built with:
+  - Pillow for image manipulation
+  - tkinterdnd2 for drag-and-drop support
+  - sv-ttk for modern themed widgets
+- Special thanks to the Python community for the tools that made this project possible.
+
+---
+
+## 📚 Additional Resources
+
+- `COMPLETED.md` – Implementation details and full walkthrough
+- `GETTING_STARTED.md` – Step-by-step quick start guide
+- `PER_IMAGE_SETTINGS.md` – Deep dive into per-image configuration
+
+If you cloned the full repository history, older files such as `splitter.py`, `splitter_modern.py`, `run_modern.bat`, etc., may still exist in Git history but are no longer part of the supported workflow.
+
+---
+
+### ✨ TL;DR
+
+```
+Windows: double-click run_per_image.bat
+Linux/macOS: ./run_per_image.sh
+
+Configure global defaults → tweak per-image settings → press ▶
+```
+
+Enjoy effortless, fine-grained image splitting! 🎉
