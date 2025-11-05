@@ -3,28 +3,83 @@
 
 I created this tool to provide an easy way to split images, particularly for those preparing large datasets of images for AI training. This script is especially useful for splitting images generated from a grid of AI images.
 
+## 🎉 NEW: Per-Image Settings Version Available!
+
+**`splitter_with_per_image.py`** - Enhanced version with:
+- ✨ **Image Preview** - See thumbnails before processing
+- ⚙️ **Per-Image Settings** - Configure each image individually
+- 🎨 **Modern Dual-Panel UI** - Resizable split view
+- 📊 **Visual Indicators** - See which images have custom settings
+- 🔄 **Global Defaults** - Set base settings for all images
+
+**Launch with:** `run_per_image.bat` or see `COMPLETED.md` for full details!
+
+## Versions
+
+| Version | File | Features |
+|---------|------|----------|
+| **Original** | `splitter.py` | Basic functionality, simple UI |
+| **Modern** | `splitter_modern.py` | Modern UI, threading, validation |
+| **Per-Image** ⭐ | `splitter_with_per_image.py` | All modern features + per-image settings & preview |
+
 ## Features
 
-- Select multiple image files (jpg, jpeg, png, bmp, webp) to process, even from multiple locations.
-- Split each selected image into a customizable number of smaller images.
-- Resize the smaller images to one of several selectable sizes: 512, 768, 1024, 2048, or 4096, or a custom size.
-- Save the smaller images in a specified output folder, or create a new folder based on the original file name. All done in the source image file location.
-- Always create a subfolder for each image file using the source file name, even when a custom folder is specified.
-- If width and height are both 1, create a folder with the date and time as the folder name.
-- Option to maintain the source image format (e.g., JPG, BMP, PNG).
-- Option to run the script via command line with all options configurable through arguments.
-- Cross-platform support with setup and run scripts for both Windows and Linux/macOS.
+### All Versions
+- Select multiple image files (jpg, jpeg, png, bmp, webp) to process, even from multiple locations
+- Split each selected image into a customizable number of smaller images
+- Resize the smaller images to one of several selectable sizes: 512, 768, 1024, 2048, or 4096, or a custom size
+- Save the smaller images in a specified output folder, or create a new folder based on the original file name
+- Always create a subfolder for each image file using the source file name, even when a custom folder is specified
+- If width and height are both 1, create a folder with the date and time as the folder name
+- Option to maintain the source image format (e.g., JPG, BMP, PNG)
+- Option to run the script via command line with all options configurable through arguments
+- Cross-platform support with setup and run scripts for both Windows and Linux/macOS
+
+### Modern & Per-Image Versions
+- 🎨 Modern dark theme UI with sv-ttk
+- ⚡ Background threading for responsive interface
+- 📊 Real-time progress bar
+- ✅ Input validation with visual feedback
+- 💡 Tooltips on all controls
+- 🎯 Better error handling
+
+### Per-Image Version Only
+- 🖼️ **Image preview** with dimensions and file size
+- ⚙️ **Per-image custom settings** - different split/size for each image
+- 📋 **Settings summary** displayed next to each filename
+- 🔄 **Global defaults** for images without custom settings
+- ✨ **Visual indicators** (⚙ icon) show which images have custom settings
+- 🗑️ **Remove selected** image from list
+- 📐 **Dual-panel layout** with resizable sections
 
 ## Project Files
 
-- `splitter.py` - Main Python script (runs with console window in background)
+### Python Scripts
+- `splitter.py` - Original version (basic functionality)
+- `splitter_modern.py` - Modern UI version (threading, validation)
+- `splitter_with_per_image.py` ⭐ - **NEW!** Per-image settings with preview
 - `splitter.pyw` - Windows-specific version (runs without console window)
-- `requirements.txt` - Lists all Python package dependencies
-- `setup.bat` - Windows setup script to install dependencies
-- `setup.sh` - Linux/macOS setup script to install dependencies
-- `run.bat` - Windows script to run the application
-- `run.sh` - Linux/macOS script to run the application
+
+### Launch Scripts
+- `run.bat` - Run original version (Windows)
+- `run_modern.bat` - Run modern version (Windows)
+- `run_per_image.bat` ⭐ - **Run per-image version (Windows)**
+- `run.sh` - Run original version (Linux/macOS)
 - `splitter.bat` - Original Windows launcher (checks for Python installation)
+
+### Setup & Dependencies
+- `requirements.txt` - Python package dependencies (includes sv-ttk for modern UI)
+- `install.bat` - Install all dependencies (Windows)
+- `setup.bat` - Windows setup script
+- `setup.sh` - Linux/macOS setup script
+
+### Documentation
+- `README.md` - This file
+- `COMPLETED.md` ⭐ - **Per-image version complete guide**
+- `IMPROVEMENTS.md` - All improvements documented
+- `PER_IMAGE_SETTINGS.md` - Feature documentation
+- `IMPLEMENTATION_GUIDE.md` - Technical implementation details
+- `QUICK_REFERENCE.md` - Quick lookup reference
 
 ## Prerequisites
 
@@ -33,17 +88,30 @@ I created this tool to provide an easy way to split images, particularly for tho
 
 ## Installation
 
-### Windows
-1. Run `setup.bat` to install all required dependencies
-   ```
-   setup.bat
-   ```
-2. After setup is complete, you can run the application using:
-   ```
-   run.bat
-   ```
-   
-   Alternatively, you can use the original `splitter.bat` which also checks for Python installation.
+### Windows - Quick Start (Recommended)
+
+**Just double-click to run!** No separate setup needed.
+
+```
+run_per_image.bat    ← Per-Image Settings (Recommended)
+run_modern.bat       ← Modern Version
+run.bat              ← Original Version
+```
+
+The launcher will automatically:
+- Check if Python is installed
+- Install missing dependencies
+- Launch the application
+
+**First time users:** If you don't have Python, install it from https://www.python.org/downloads/ (check "Add Python to PATH")
+
+### Manual Installation (Optional)
+
+If you prefer to install dependencies separately:
+```
+setup.bat    ← Checks Python + installs dependencies
+install.bat  ← Installs dependencies only
+```
 
 ### Linux/macOS
 1. Make the setup script executable:
